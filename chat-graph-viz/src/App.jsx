@@ -3,7 +3,8 @@ import FileUpload from './components/FileUpload';
 import GraphContainer from './components/GraphContainer';
 import Sidebar from './components/Sidebar';
 import './App.css';
-
+import { inject } from "@vercel/analytics"
+inject();
 function App() {
   // State for managing the application data flow
   const [messages, setMessages] = useState([]);
