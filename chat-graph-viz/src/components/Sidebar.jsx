@@ -1,6 +1,9 @@
-import React from 'react';
 
-function Sidebar({ messages, graphData, isProcessing, processingProgress }) {
+
+function Sidebar({ messages, graphData, isProcessing, processingProgress, clusterLegend, sampleSize,
+  setSampleSize,
+  conversationLimit,
+  setConversationLimit}) {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -111,6 +114,7 @@ function Sidebar({ messages, graphData, isProcessing, processingProgress }) {
           <strong>AI Model:</strong> Universal Sentence Encoder
           <br />
           <strong>Framework:</strong> TensorFlow.js
+          <p>All data loading / processing is done in-browser, on your machine. Nothing is stored.</p>
         </div>
         
         {/* Instructions */}
@@ -123,10 +127,73 @@ function Sidebar({ messages, graphData, isProcessing, processingProgress }) {
           }}>
             <h4 style={{ color: '#2d3748', marginBottom: '12px' }}>How it works:</h4>
             <ol style={{ paddingLeft: '20px' }}>
+              <li style={{ marginBottom: '8px' }}>Set your sample size. <p>This is how deep to sample from each conversation, distributed evenly</p></li>
+              <li style={{ marginBottom: '8px' }}>Select the limit of conversations. Starts from most recent, default is {conversationLimit}</li>
               <li style={{ marginBottom: '8px' }}>Upload your ChatGPT conversations.json file</li>
-              <li style={{ marginBottom: '8px' }}>AI analyzes message content using embeddings</li>
-              <li style={{ marginBottom: '8px' }}>Messages are clustered by similarity</li>
-              <li>Interactive graph shows conversation patterns</li>
+              <li style={{ marginBottom: '8px' }}>AI analyzes message content using embeddings to create clusters titled by common keywords</li>
+              <li style={{ marginBottom: '8px' }}>Conversations are positioned by semantic similarity, outliers are black nodes</li>
+              <li>Too little data can fail to cluster properly, large graphs can take awhile to load.</li>
+            </ol>
+          </div>
+        )}
+        {!messages.length && !isProcessing && (
+  <div style={{ 
+    fontSize: '14px', 
+    color: '#718096', 
+    lineHeight: '1.5',
+    marginTop: '20px'
+  }}>
+    <h4 style={{ color: '#2d3748', marginBottom: '12px', textAlign: "center"}}>Options</h4>
+    <div style={{marginBottom: "14px"}}>
+      <label htmlFor="sample-size-slider">Sample Size</label>
+      <input
+        type="range"
+        id="sample-size-slider"
+        min={500}
+        max={5000}
+        step={100}
+        value={sampleSize}
+        onChange={e => setSampleSize(Number(e.target.value))}
+      />
+      <div style={{textAlign: "right", color: "#bbb", fontSize: "0.9em"}}>{sampleSize}</div>
+
+      <label htmlFor="convo-amt-slider">Conversation Limit</label>
+      <input
+        type="range"
+        id="convo-amt-slider"
+        min={10}
+        max={1000}
+        step={10}
+        value={conversationLimit}
+        onChange={e => setConversationLimit(Number(e.target.value))}
+      />
+      <div style={{textAlign: "right", color: "#bbb", fontSize: "0.9em"}}>{conversationLimit}</div>
+    </div>
+  </div>
+)}
+          {/* Cluster Legend */}
+          {clusterLegend && clusterLegend.length > 0 && (
+          <div className="stats-panel">
+            <h3 className="stats-title">Clusters</h3>
+            <ol className="cluster-legend" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              {clusterLegend
+                .slice() // copy to avoid mutating original
+                .sort((a, b) => b.count - a.count) // descending order by count
+                .map(cl => (
+                  <li key={cl.id} style={{ color: cl.color, marginBottom: '4px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{
+                      background: cl.color,
+                      display: 'inline-block',
+                      borderRadius: '50%',
+                      width: '1em',
+                      height: '1em',
+                      marginRight: '0.6em',
+                      boxShadow: '0 0 0 1.5px #8882'
+                    }}></span>
+                    <span style={{ fontWeight: 600 }}>{cl.label}</span>
+                    <span style={{color:"#aaa", marginLeft: "auto", fontSize: "0.92em"}}>({cl.count})</span>
+                  </li>
+                ))}
             </ol>
           </div>
         )}

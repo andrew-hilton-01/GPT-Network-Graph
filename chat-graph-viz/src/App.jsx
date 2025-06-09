@@ -7,12 +7,15 @@ import './App.css';
 function App() {
   // State for managing the application data flow
   const [messages, setMessages] = useState([]);
-  const [graphData, setGraphData] = useState(null);
+  const [processedData, setProcessedData] = useState(null); // Changed from graphData to processedData
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState('');
   const [processingProgress, setProcessingProgress] = useState(null);
   const [error, setError] = useState(null);
-  
+  const [selectedMessage, setSelectedMessage] = useState(null); // New state for selected message
+  const [clusterLegend, setClusterLegend] = useState([]);
+  const [sampleSize, setSampleSize] = useState(2000);
+  const [conversationLimit, setConversationLimit] = useState(100);
   // Web Worker reference
   const workerRef = useRef(null);
 
@@ -44,7 +47,7 @@ function App() {
           
         case 'PROCESSING_COMPLETE':
           console.log('✅ Processing complete:', payload.stats);
-          setGraphData(payload);
+          setProcessedData(payload); // Changed from setGraphData to setProcessedData
           setIsProcessing(false);
           setProcessingStatus('Processing complete!');
           setProcessingProgress(null);
@@ -93,11 +96,12 @@ function App() {
     console.log(`📥 Messages loaded: ${loadedMessages.length}`);
     setMessages(loadedMessages);
     setError(null);
+    setSelectedMessage(null); // Clear any selected message
     
     // Start processing the messages
     if (workerRef.current && loadedMessages.length > 0) {
       setIsProcessing(true);
-      setGraphData(null);
+      setProcessedData(null); // Changed from setGraphData to setProcessedData
       setProcessingProgress(null);
       
       workerRef.current.postMessage({
@@ -105,6 +109,12 @@ function App() {
         payload: loadedMessages
       });
     }
+  };
+
+  // Handle message selection from graph
+  const handleMessageSelect = (message) => {
+    setSelectedMessage(message);
+    console.log('Selected message:', message);
   };
 
   // Clear error handler
@@ -116,63 +126,79 @@ function App() {
     <div className="app-container">
       <Sidebar 
         messages={messages}
-        graphData={graphData}
+        processedData={processedData} // Changed from graphData to processedData
+        selectedMessage={selectedMessage} // Pass selected message to sidebar
         isProcessing={isProcessing}
         processingProgress={processingProgress}
+        clusterLegend={clusterLegend}
+        sampleSize={sampleSize}
+        setSampleSize={setSampleSize}
+        conversationLimit={conversationLimit}
+        setConversationLimit={setConversationLimit}
       />
       
       <main className="main-content">
-        <div className="file-upload-section">
-          <FileUpload 
-            onMessagesLoaded={handleMessagesLoaded}
-            isProcessing={isProcessing}
-            setIsProcessing={setIsProcessing}
-            setProcessingStatus={setProcessingStatus}
-            setGraphData={setGraphData}
-          />
-          
-          {/* Processing status */}
-          {processingStatus && (
-            <div className="status-message status-info">
-              {processingStatus}
-              {processingProgress && (
-                <div className="progress-container mt-2">
-                  <div 
-                    className="progress-bar" 
-                    style={{ 
-                      width: `${(processingProgress.current / processingProgress.total) * 100}%` 
-                    }}
-                  ></div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Error display */}
-          {error && (
-            <div className="status-message status-error">
-              <strong>Error:</strong> {error}
-              <button 
-                onClick={clearError}
-                style={{ 
-                  marginLeft: '10px', 
-                  background: 'none', 
-                  border: 'none', 
-                  color: 'inherit', 
-                  textDecoration: 'underline',
-                  cursor: 'pointer'
-                }}
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
-        </div>
+        {!processedData && (
+  <div className="file-upload-section">
+    <FileUpload 
+      onMessagesLoaded={handleMessagesLoaded}
+      isProcessing={isProcessing}
+      setIsProcessing={setIsProcessing}
+      setProcessingStatus={setProcessingStatus}
+      setProcessedData={setProcessedData}
+      sampleSize={sampleSize}
+      conversationLimit={conversationLimit}
+    />
+    
+    {/* Processing status */}
+    {processingStatus && (
+      <div className="status-message status-info">
+        {processingStatus}
+        {processingProgress && (
+          <div className="progress-container mt-2">
+            <div 
+              className="progress-bar" 
+              style={{ 
+                width: `${(processingProgress.current / processingProgress.total) * 100}%` 
+              }}
+            ></div>
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Error display */}
+    {error && (
+      <div className="status-message status-error">
+        <strong>Error:</strong> {error}
+        <button 
+          onClick={clearError}
+          style={{ 
+            marginLeft: '10px', 
+            background: 'none', 
+            border: 'none', 
+            color: 'inherit', 
+            textDecoration: 'underline',
+            cursor: 'pointer'
+          }}
+        >
+          Dismiss
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
         
+        {processedData && processedData.messages && processedData.messages.length > 0 && (
         <GraphContainer 
-          graphData={graphData}
+          processedData={processedData}
+          onMessageSelect={handleMessageSelect}
           isLoading={isProcessing}
+          onLegendReady={setClusterLegend}
         />
+      )}
+
       </main>
     </div>
   );

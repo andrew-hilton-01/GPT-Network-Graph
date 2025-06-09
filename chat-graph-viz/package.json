@@ -10,8 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-sigma/core": "^5.0.4",
+    "@react-sigma/graph-search": "^5.0.4",
+    "@react-sigma/layout-forceatlas2": "^5.0.4",
+    "graphology": "^0.26.0",
+    "graphology-layout": "^0.6.1",
+    "graphology-types": "^0.24.8",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-sigma": "^1.2.35",
+    "sigma": "^3.0.2",
+    "umap-js": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

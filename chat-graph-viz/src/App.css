@@ -46,6 +46,9 @@ body {
   flex: 1;
 }
 
+.stats-title {
+  text-align: center;
+}
 /* Main content area */
 .main-content {
   flex: 1;

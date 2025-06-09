@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { parseConversations, getConversationStats, sampleMessages } from '../utils/ChatParser.js';
 
-function FileUpload({ onMessagesLoaded, isProcessing, setIsProcessing, setProcessingStatus, setGraphData }) {
+function FileUpload({ onMessagesLoaded, isProcessing, setIsProcessing, setProcessingStatus, sampleSize, conversationLimit }) {
   const fileInputRef = useRef(null);
   const [error, setError] = useState(null);
   const [fileInfo, setFileInfo] = useState(null);
@@ -34,14 +34,14 @@ function FileUpload({ onMessagesLoaded, isProcessing, setIsProcessing, setProces
       setProcessingStatus('Parsing conversations...');
       
       // Parse the conversations
-      const messages = parseConversations(fileContent);
+      const messages = parseConversations(fileContent, conversationLimit);
       
       if (messages.length === 0) {
         throw new Error('No valid messages found in the file');
       }
       
       // Sample messages if there are too many (for performance)
-      const sampledMessages = sampleMessages(messages, 2000);
+      const sampledMessages = sampleMessages(messages, sampleSize);
       
       if (sampledMessages.length < messages.length) {
         setProcessingStatus(`Sampled ${sampledMessages.length} messages from ${messages.length} total`);
@@ -138,6 +138,7 @@ function FileUpload({ onMessagesLoaded, isProcessing, setIsProcessing, setProces
         <div className="status-message status-error">
           <strong>Error:</strong> {error}
         </div>
+        
       )}
 
       {/* File info display */}
@@ -157,6 +158,7 @@ function FileUpload({ onMessagesLoaded, isProcessing, setIsProcessing, setProces
           </small>
         </div>
       )}
+
     </div>
   );
 }

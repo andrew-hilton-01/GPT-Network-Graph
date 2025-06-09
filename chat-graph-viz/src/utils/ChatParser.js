@@ -8,7 +8,7 @@
  * @param {string} jsonString - Raw JSON content from the file
  * @returns {Array} Array of message objects
  */
-export function parseConversations(jsonString) {
+export function parseConversations(jsonString, maxConvos = 100) {
   try {
     const data = JSON.parse(jsonString);
     
@@ -20,7 +20,9 @@ export function parseConversations(jsonString) {
     const messages = [];
     
     // Process each conversation
-    data.forEach((conversation, conversationIndex) => {
+    // const maxConvos = 5000; //TODO: Max for testing
+    (data.slice(0, maxConvos)).forEach((conversation, conversationIndex) => {
+
       if (!conversation || typeof conversation !== 'object') {
         console.warn(`Skipping invalid conversation at index ${conversationIndex}`);
         return;

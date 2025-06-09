@@ -1,38 +1,17 @@
-// components/GraphContainer.jsx
-import React from 'react';
+// DisplayGraph.jsx
+import "@react-sigma/core/lib/style.css";
+import { SigmaContainer } from '@react-sigma/core';
+import LoadGraph from './LoadGraph';
 
-function GraphContainer({ graphData, isLoading }) {
-  if (isLoading) {
-    return (
-      <div className="graph-container">
-        <div className="loading">
-          <div className="spinner"></div>
-          <span className="loading-text">Processing your conversations...</span>
-        </div>
-      </div>
-    );
-  }
 
-  if (!graphData) {
-    return (
-      <div className="graph-container">
-        <div className="graph-placeholder">
-          Upload a ChatGPT export to visualize your conversations
-        </div>
-      </div>
-    );
-  }
-
+function DisplayGraph({ processedData, onLegendReady }) {
   return (
-    <div className="graph-container">
-      {/* TODO: Sigma.js graph will go here */}
-      <div className="graph-placeholder">
-        Graph visualization will appear here
-        <br />
-        <small>Data loaded: {graphData ? 'Yes' : 'No'}</small>
-      </div>
-    </div>
+    <SigmaContainer style={{ width: '100vw', height: '100vh' }}>
+      <LoadGraph processedData={processedData} 
+      onLegendReady={onLegendReady}
+      />
+    </SigmaContainer>
   );
 }
 
-export default GraphContainer;
+export default DisplayGraph;

@@ -161,7 +161,7 @@ async function generateEmbeddings(messages) {
       
       // Small delay to prevent blocking
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
     } catch (error) {
       console.error(`Error processing batch ${i}-${batchEnd}:`, error);
       throw error;
